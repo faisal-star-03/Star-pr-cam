@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "starx-photo-uploader",
   "builds": [
     {
       "src": "upload.js",
@@ -14,8 +13,8 @@
   "routes": [
     {
       "src": "/api/upload",
-      "methods": ["POST"],
-      "dest": "upload.js"
+      "dest": "/upload.js",
+      "methods": ["POST"]
     },
     {
       "src": "/(.*)",
