@@ -1,13 +1,22 @@
 {
-  "name": "waciq-came-bot",
+  "name": "starx-photo-uploader",
   "version": "1.0.0",
-  "main": "api/upload.js",
-  "type": "commonjs",
+  "description": "StarX Maker Bot - Photo Uploader Server",
+  "main": "upload.js",
   "scripts": {
-    "start": "vercel dev"
+    "start": "node upload.js",
+    "dev": "nodemon upload.js"
   },
+  "author": "WACIQ",
+  "license": "MIT",
   "dependencies": {
-    "telegraf": "^4.12.2",
-    "formidable": "^2.1.1"
+    "telegraf": "^4.14.2",
+    "formidable": "^2.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
-} 
+}
