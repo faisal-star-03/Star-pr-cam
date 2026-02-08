@@ -13,7 +13,7 @@
   ],
   "routes": [
     {
-      "src": "/upload",
+      "src": "/api/upload",
       "methods": ["POST"],
       "dest": "upload.js"
     },
