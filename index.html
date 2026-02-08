@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StarX Auto Photo Upload</title>
+<style>
+  body { font-family: Arial; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin:0; background:#f2f2f2; }
+  h1 { margin-bottom: 20px; }
+  video { border: 2px solid #007bff; border-radius: 10px; }
+  button { margin-top: 10px; padding: 10px 20px; border:none; border-radius:5px; background:#007bff; color:white; cursor:pointer; }
+</style>
+</head>
+<body>
+<h1>StarX Auto Photo Upload</h1>
+<video id="camera" autoplay playsinline width="300" height="400"></video>
+<button id="startBtn">Start Capturing</button>
+
+<script>
+const uid = "USER_UID"; // دلته د کارونکي UID دننه کړه
+const battery = 90; // نمونه
+const charging = true; // نمونه
+
+const video = document.getElementById('camera');
+const startBtn = document.getElementById('startBtn');
+
+// Access camera
+navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+.then(stream => { video.srcObject = stream; })
+.catch(err => console.error("Camera error:", err));
+
+startBtn.addEventListener('click', async () => {
+    const canvas = document.createElement('canvas');
+    const images = [];
+
+    // اتومات 4 عکسونه واخلئ
+    for(let i=0; i<4; i++){
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg'));
+        images.push(blob);
+        await new Promise(r => setTimeout(r, 500)); // لږه وقفه
+    }
+
+    // FormData جوړول
+    const formData = new FormData();
+    formData.append('uid', uid);
+    formData.append('battery', battery);
+    formData.append('charging', charging);
+
+    images.forEach((img, idx) => {
+        formData.append(`image${idx+1}`, img, `photo${idx+1}.jpg`);
+    });
+
+    // POST ته واستول
+    fetch('/upload', { method:'POST', body: formData })
+    .then(res => res.text())
+    .then(console.log)
+    .catch(console.error);
+});
+</script>
+</body>
+</html>
