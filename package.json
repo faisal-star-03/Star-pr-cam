@@ -1,0 +1,13 @@
+{
+  "name": "waciq-came-bot",
+  "version": "1.0.0",
+  "main": "api/upload.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "telegraf": "^4.12.2",
+    "formidable": "^2.1.1"
+  }
+} 
