@@ -1,16 +1,11 @@
 {
-  "name": "starx-cam",
+  "name": "waciq-upload",
   "version": "1.0.0",
-  "type": "module",
+  "main": "api/upload.js",
   "scripts": {
-    "dev": "vercel dev",
     "start": "vercel dev"
   },
   "dependencies": {
-    "formidable": "^2.2.1",
     "telegraf": "^4.12.2"
-  },
-  "engines": {
-    "node": ">=18.0.0"
   }
 } 
