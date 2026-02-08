@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "name": "starx-photo-uploader",
+  "builds": [
+    {
+      "src": "upload.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/upload",
+      "methods": ["POST"],
+      "dest": "upload.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
