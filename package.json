@@ -1,22 +1,16 @@
 {
-  "name": "starx-photo-uploader",
+  "name": "starx-cam",
   "version": "1.0.0",
-  "description": "StarX Maker Bot - Photo Uploader Server",
-  "main": "upload.js",
+  "type": "module",
   "scripts": {
-    "start": "node upload.js",
-    "dev": "nodemon upload.js"
+    "dev": "vercel dev",
+    "start": "vercel dev"
   },
-  "author": "WACIQ",
-  "license": "MIT",
   "dependencies": {
-    "telegraf": "^4.14.2",
-    "formidable": "^2.2.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.2"
+    "formidable": "^2.2.1",
+    "telegraf": "^4.12.2"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.0.0"
   }
-}
+} 
